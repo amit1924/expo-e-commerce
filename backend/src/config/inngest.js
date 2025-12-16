@@ -2,59 +2,48 @@ import { Inngest } from 'inngest';
 import { connectDB } from './db.js';
 import User from '../models/user.model.js';
 
-// Create Inngest client
 export const inngest = new Inngest({
   id: 'ecommerce-app',
 });
 
 /* ==============================
    USER CREATED
-   Event: webhook-integration/user.created
 ================================ */
 const syncUser = inngest.createFunction(
   { id: 'sync-user' },
-  { event: 'webhook-integration/user.created' }, // ✅ FIXED EVENT NAME
+  { event: 'user.created' }, // ✅ CORRECT
   async ({ event }) => {
-    console.log('🔥 webhook-integration/user.created received');
-    console.log('📦 Event payload:', JSON.stringify(event.data, null, 2));
+    console.log('🔥 user.created received');
 
     await connectDB();
-    console.log('✅ MongoDB connected');
 
     const { id, email_addresses, first_name, last_name, image_url } =
       event.data;
 
-    const userData = {
+    await User.create({
       clerkId: id,
       email: email_addresses?.[0]?.email_address,
-      name: `${first_name || ''} ${last_name || ''}`.trim() || 'User',
+      name: `${first_name || ''} ${last_name || ''}`.trim(),
       image: image_url || '',
       addresses: [],
       wishlist: [],
-    };
+    });
 
-    await User.create(userData);
-
-    console.log('🎉 User saved to MongoDB');
+    console.log('✅ User saved to MongoDB');
   },
 );
 
 /* ==============================
    USER DELETED
-   Event: webhook-integration/user.deleted
 ================================ */
 const deleteUserFromDB = inngest.createFunction(
   { id: 'delete-user-from-db' },
-  { event: 'webhook-integration/user.deleted' }, // ✅ FIXED EVENT NAME
+  { event: 'user.deleted' }, // ✅ CORRECT
   async ({ event }) => {
-    console.log('🗑️ webhook-integration/user.deleted received');
-
     await connectDB();
     await User.deleteOne({ clerkId: event.data.id });
-
-    console.log('✅ User deleted from MongoDB');
+    console.log('🗑️ User deleted');
   },
 );
 
-// Export all functions
 export const functions = [syncUser, deleteUserFromDB];
