@@ -11,25 +11,27 @@ export const inngest = new Inngest({
 ================================ */
 const syncUser = inngest.createFunction(
   { id: 'sync-user' },
-  { event: 'user.created' }, // ✅ CORRECT
+  { event: 'clerk/user.created' },
   async ({ event }) => {
-    console.log('🔥 user.created received');
+    console.log('📩 Clerk user.created event received');
 
     await connectDB();
 
     const { id, email_addresses, first_name, last_name, image_url } =
       event.data;
 
-    await User.create({
+    const userData = {
       clerkId: id,
       email: email_addresses?.[0]?.email_address,
-      name: `${first_name || ''} ${last_name || ''}`.trim(),
+      name: `${first_name || ''} ${last_name || ''}`.trim() || 'User',
       image: image_url || '',
       addresses: [],
       wishlist: [],
-    });
+    };
 
-    console.log('✅ User saved to MongoDB');
+    await User.create(userData);
+
+    console.log('✅ User saved to database');
   },
 );
 
@@ -37,12 +39,15 @@ const syncUser = inngest.createFunction(
    USER DELETED
 ================================ */
 const deleteUserFromDB = inngest.createFunction(
-  { id: 'delete-user-from-db' },
-  { event: 'user.deleted' }, // ✅ CORRECT
+  { id: 'delete-user' },
+  { event: 'clerk/user.deleted' },
   async ({ event }) => {
+    console.log('🗑️ Clerk user.deleted event received');
+
     await connectDB();
     await User.deleteOne({ clerkId: event.data.id });
-    console.log('🗑️ User deleted');
+
+    console.log('✅ User deleted from database');
   },
 );
 
