@@ -2,40 +2,52 @@ import { Inngest } from 'inngest';
 import { connectDB } from './db.js';
 import User from '../models/user.model.js';
 
-export const inngest = new Inngest({ id: 'ecommerce-app' });
+export const inngest = new Inngest({
+  id: 'ecommerce-app',
+});
 
+/* ==============================
+   USER CREATED
+================================ */
 const syncUser = inngest.createFunction(
-  {
-    id: 'sync-user',
-  },
+  { id: 'sync-user' },
   { event: 'clerk/user.created' },
   async ({ event }) => {
-    await connectDB();
-    const { id, email_address, first_name, last_name, image_url } = event.data;
+    console.log('📩 Clerk user.created event received');
 
-    const newUser = {
+    await connectDB();
+
+    const { id, email_addresses, first_name, last_name, image_url } =
+      event.data;
+
+    const userData = {
       clerkId: id,
-      email: email_address[0].email_address,
-      name: `${first_name || ''} ${last_name || ''}` || 'User',
-      imageUrl: image_url || '',
+      email: email_addresses?.[0]?.email_address,
+      name: `${first_name || ''} ${last_name || ''}`.trim() || 'User',
+      image: image_url || '',
       addresses: [],
       wishlist: [],
     };
 
-    await User.create(newUser);
+    await User.create(userData);
+
+    console.log('✅ User saved to database');
   },
 );
 
+/* ==============================
+   USER DELETED
+================================ */
 const deleteUserFromDB = inngest.createFunction(
-  {
-    id: 'delete-user-from-db',
-  },
+  { id: 'delete-user' },
   { event: 'clerk/user.deleted' },
   async ({ event }) => {
-    await connectDB();
-    const { id } = event.data;
+    console.log('🗑️ Clerk user.deleted event received');
 
-    await User.deleteOne({ clerkId: id });
+    await connectDB();
+    await User.deleteOne({ clerkId: event.data.id });
+
+    console.log('✅ User deleted from database');
   },
 );
 

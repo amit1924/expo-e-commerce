@@ -34,6 +34,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 
+// Inngest endpoint
 app.use('/api/inngest', serve({ client: inngest, functions }));
 
 // server status route

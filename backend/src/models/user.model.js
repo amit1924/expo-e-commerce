@@ -1,34 +1,13 @@
 import mongoose from 'mongoose';
 
 const addressSchema = new mongoose.Schema({
-  label: {
-    type: String,
-    required: true,
-  },
-  fullName: {
-    type: String,
-    required: true,
-  },
-  streetAddress: {
-    type: String,
-    required: true,
-  },
-  city: {
-    type: String,
-    required: true,
-  },
-  state: {
-    type: String,
-    required: true,
-  },
-  zipCode: {
-    type: String,
-    required: true,
-  },
-  phoneNumber: {
-    type: String,
-    required: true,
-  },
+  label: String,
+  fullName: String,
+  streetAddress: String,
+  city: String,
+  state: String,
+  zipCode: String,
+  phoneNumber: String,
   isDefault: {
     type: Boolean,
     default: false,
@@ -37,6 +16,11 @@ const addressSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema(
   {
+    clerkId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     name: {
       type: String,
       required: true,
@@ -46,18 +30,9 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    password: {
-      type: String,
-      required: true,
-    },
     image: {
       type: String,
       default: '',
-    },
-    clerkId: {
-      type: String,
-      unique: true,
-      required: true,
     },
     addresses: [addressSchema],
     wishlist: [
@@ -71,5 +46,4 @@ const userSchema = new mongoose.Schema(
 );
 
 const User = mongoose.model('User', userSchema);
-
 export default User;
