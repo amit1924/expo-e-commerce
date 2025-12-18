@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Multer File Upload Explained Simply</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              dark: '#0f172a',
+              neon: '#38bdf8',
+              green: '#22c55e',
+              purple: '#a855f7',
+              yellow: '#facc15',
+            },
+            boxShadow: {
+              neon: '0 0 15px rgba(56,189,248,0.6)',
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body class="bg-dark text-gray-200">
+    <!-- HEADER -->
+    <header class="text-center py-8">
+      <h1 class="text-3xl font-bold text-neon drop-shadow-[0_0_10px_#38bdf8]">
+        📤 Multer File Upload – Simple Explanation
+      </h1>
+      <p class="text-gray-400 mt-2">
+        Step by step, with real examples (Teacher Mode 👨‍🏫)
+      </p>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 space-y-10">
+      <!-- BIG IDEA -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-green">
+          <i class="fas fa-lightbulb"></i> Big Idea (One Line)
+        </h2>
+        <p class="mt-3 text-lg">
+          This code controls <b>how images are uploaded</b>,
+          <b>which images are allowed</b>, and <b>how they are named</b>.
+        </p>
+      </section>
+
+      <!-- FULL CODE -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-neon">
+          <i class="fas fa-code"></i> Full Code
+        </h2>
+
+        <pre
+          class="bg-black p-4 rounded-lg mt-4 text-sm text-gray-300 overflow-x-auto"
+        >
+import multer from 'multer';
+import path from 'path';
+
+const storage = multer.diskStorage({
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const safeExt = ['.jpeg', '.jpg', '.png', '.webp'].includes(ext) ? ext : '';
+    cb(null, `${file.fieldname}-${Date.now()}${safeExt}`);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|webp/;
+  const extname = allowedTypes.test(
+    path.extname(file.originalname).toLocaleLowerCase(),
+  );
+  const mimetype = allowedTypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  } else {
+    cb(new Error('Only images are allowed'));
+  }
+};
+
+export const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+  </pre
+        >
+      </section>
+
+      <!-- STEP 1 -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-purple">
+          <i class="fas fa-download"></i> Step 1: Import Required Tools
+        </h2>
+
+        <pre class="bg-black p-4 rounded-lg mt-4 text-sm text-gray-300">
+import multer from 'multer';
+import path from 'path';
+  </pre
+        >
+
+        <p class="mt-4">
+          👉 <b>multer</b> → handles file uploads
+          <br />
+          👉 <b>path</b> → helps extract file extension (.jpg, .png)
+        </p>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-green">
+          <i class="fas fa-folder"></i> Step 2: Storage Engine (Where & How to
+          Save)
+        </h2>
+
+        <pre class="bg-black p-4 rounded-lg mt-4 text-sm text-gray-300">
+const storage = multer.diskStorage({
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const safeExt = ['.jpeg', '.jpg', '.png', '.webp'].includes(ext) ? ext : '';
+    cb(null, `${file.fieldname}-${Date.now()}${safeExt}`);
+  },
+});
+  </pre
+        >
+
+        <p class="mt-4">This decides <b>file name</b> when saving to server.</p>
+
+        <p class="mt-3 text-yellow-300">🧠 Real example:</p>
+
+        <ul class="list-disc list-inside mt-2">
+          <li>User uploads: <b>myphoto.JPG</b></li>
+          <li>fieldname = <b>image</b></li>
+          <li>Timestamp = <b>1700000000000</b></li>
+        </ul>
+
+        <p class="mt-2">👉 Saved as: <b>image-1700000000000.jpg</b></p>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-neon">
+          <i class="fas fa-lock"></i> Step 3: Safe Extension Logic
+        </h2>
+
+        <pre class="bg-black p-4 rounded-lg mt-4 text-sm text-gray-300">
+const safeExt = ['.jpeg', '.jpg', '.png', '.webp'].includes(ext) ? ext : '';
+  </pre
+        >
+
+        <p class="mt-4">
+          ✔️ If file extension is allowed → keep it
+          <br />
+          ❌ If not allowed → remove extension
+        </p>
+
+        <p class="mt-3 text-yellow-300">Example:</p>
+
+        <ul class="list-disc list-inside mt-2">
+          <li><b>virus.exe</b> → extension removed</li>
+          <li><b>photo.png</b> → allowed</li>
+        </ul>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-purple">
+          <i class="fas fa-filter"></i> Step 4: File Filter (Who is Allowed)
+        </h2>
+
+        <pre class="bg-black p-4 rounded-lg mt-4 text-sm text-gray-300">
+const allowedTypes = /jpeg|jpg|png|webp/;
+  </pre
+        >
+
+        <p class="mt-4">Only image types are allowed.</p>
+
+        <pre class="bg-black p-4 rounded-lg mt-4 text-sm text-gray-300">
+const extname = allowedTypes.test(path.extname(file.originalname));
+const mimetype = allowedTypes.test(file.mimetype);
+  </pre
+        >
+
+        <p class="mt-4">
+          ✔️ Checks <b>file name</b> ✔️ Checks <b>file content</b>
+        </p>
+
+        <p class="mt-3 text-yellow-300">Why both?</p>
+
+        <ul class="list-disc list-inside mt-2">
+          <li>User may rename <b>virus.exe → virus.jpg</b></li>
+          <li>Mimetype check catches this</li>
+        </ul>
+      </section>
+
+      <!-- STEP 5 -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-green">
+          <i class="fas fa-check-circle"></i> Step 5: Allow or Reject File
+        </h2>
+
+        <pre class="bg-black p-4 rounded-lg mt-4 text-sm text-gray-300">
+if (extname && mimetype) {
+  return cb(null, true);
+} else {
+  cb(new Error('Only images are allowed'));
+}
+  </pre
+        >
+
+        <p class="mt-4">
+          ✅ If both checks pass → file is accepted ❌ Otherwise → upload is
+          rejected
+        </p>
+      </section>
+
+      <!-- STEP 6 -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-neon">
+          <i class="fas fa-weight-hanging"></i> Step 6: File Size Limit
+        </h2>
+
+        <pre class="bg-black p-4 rounded-lg mt-4 text-sm text-gray-300">
+limits: { fileSize: 5 * 1024 * 1024 }
+  </pre
+        >
+
+        <p class="mt-4">📏 Maximum file size = <b>5 MB</b></p>
+
+        <p class="mt-2">5 × 1024 × 1024 = 5,242,880 bytes</p>
+      </section>
+
+      <!-- STEP 7 -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-purple">
+          <i class="fas fa-rocket"></i> Step 7: Final Upload Middleware
+        </h2>
+
+        <pre class="bg-black p-4 rounded-lg mt-4 text-sm text-gray-300">
+export const upload = multer({
+  storage,
+  fileFilter,
+  limits
+});
+  </pre
+        >
+
+        <p class="mt-4">🚀 This <b>upload</b> middleware is used in routes.</p>
+
+        <p class="mt-3 text-yellow-300">Example usage:</p>
+
+        <p class="mt-2">
+          <b>upload.single('image')</b> → one image
+          <br />
+          <b>upload.array('images', 3)</b> → max 3 images
+        </p>
+      </section>
+
+      <!-- FINAL SUMMARY -->
+      <section class="bg-slate-900 p-6 rounded-xl shadow-neon">
+        <h2 class="text-xl font-semibold text-neon">
+          <i class="fas fa-check-double"></i> 20-Second Final Summary
+        </h2>
+
+        <ul class="list-disc list-inside mt-4 space-y-1">
+          <li>Multer handles file upload</li>
+          <li>Storage decides file name</li>
+          <li>Filter allows only images</li>
+          <li>Limits protect server</li>
+          <li>Middleware used in routes</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="text-center py-6 text-gray-500">
+      Multer upload made crystal clear 💙
+    </footer>
+  </body>
+</html>
