@@ -6,7 +6,9 @@ import { connectDB } from '../src/config/db.js';
 import { clerkMiddleware } from '@clerk/express';
 import { serve } from 'inngest/express';
 import { inngest, functions } from '../src/config/inngest.js';
-dotenv.config();
+import adminRoutes from '../src/routes/admin.route.js';
+
+dotenv.config({ quiet: true });
 
 const app = express();
 
@@ -37,6 +39,8 @@ app.use(express.json());
 // Inngest endpoint
 app.use('/api/inngest', serve({ client: inngest, functions }));
 
+//admin routes
+app.use('/api/admin', adminRoutes);
 // server status route
 app.get('/', (req, res) => {
   res.json({ message: 'Server is running' });
