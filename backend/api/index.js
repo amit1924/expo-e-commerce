@@ -7,6 +7,8 @@ import { clerkMiddleware } from '@clerk/express';
 import { serve } from 'inngest/express';
 import { inngest, functions } from '../src/config/inngest.js';
 import adminRoutes from '../src/routes/admin.route.js';
+import userRoutes from '../src/routes/user.route.js';
+import orderRoutes from '../src/routes/order.route.js';
 
 dotenv.config({ quiet: true });
 
@@ -41,6 +43,8 @@ app.use('/api/inngest', serve({ client: inngest, functions }));
 
 //admin routes
 app.use('/api/admin', adminRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/orders', orderRoutes);
 // server status route
 app.get('/', (req, res) => {
   res.json({ message: 'Server is running' });
